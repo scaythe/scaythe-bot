@@ -11,6 +11,7 @@ public class I18n {
     public ReloadableResourceBundleMessageSource messageSource() {
         ReloadableResourceBundleMessageSource rrbms = new ReloadableResourceBundleMessageSource();
         rrbms.setBasenames("classpath:i18n/text", "classpath:i18n/speech");
+        rrbms.setDefaultEncoding("UTF-8");
         return rrbms;
     }
 }

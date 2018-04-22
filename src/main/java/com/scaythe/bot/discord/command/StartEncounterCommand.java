@@ -58,8 +58,18 @@ public class StartEncounterCommand extends I18nCommand {
         String eventId = event.getArgs().trim();
 
         if (eventId.isEmpty()) {
+            String code;
+            if (player == null) {
+                code = "empty";
+            } else {
+                code = "stopped";
+            }
+            
             event.reply(
-                    message("empty", guildObjects.config().locale(), guildObjects.messageSource()));
+                    message(
+                            code,
+                            guildObjects.config().locale(),
+                            guildObjects.messageSource()));
             return;
         }
 
