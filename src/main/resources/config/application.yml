@@ -1,0 +1,114 @@
+scaythe:
+  discord:
+# Must be set to your bot token
+#    token:
+# Your user snowflake id
+#    owner:
+    prefix: "-"
+  tts:
+    ibm:
+# if using the ibm watson tts, these must be set to the credentials for the tts service
+#      login:
+#      password:
+  gw2:
+    encounters:
+    - id: dhuum
+      mechanics:
+      - id: green
+        initial-delay: 30
+        period: 30
+        duties: 7
+        roles: 3
+        warnings:
+        - id: before
+          offset: -10
+        - id: going
+      - id: bomb-chain
+        initial-delay: 60
+        period: 90
+        repeat: 6
+        warnings:
+        - id: start
+      - id: death-mark
+        initial-delay: 175
+        period: 80
+        warnings:
+        - id: soon
+          offset: -5
+      - id: greater-death-mark
+        initial-delay: 215
+        period: 80
+        warnings:
+        - id: hold-bomb
+          offset: -12
+        - id: soon
+          offset: -5
+      - id: enrage
+        initial-delay: 600
+        warnings:
+        - id: 1m
+          offset: -60
+        - id: 30s
+          offset: -30
+        - id: 10s
+          offset: -10
+      duration: 600
+  
+    - id: sab
+      mechanics:
+      - id: cannon
+        initial-delay: 30
+        period: 30
+        duties: 8
+        roles: 2
+        warnings:
+        - id: before
+          offset: -10
+        - id: spawn
+        - id: bomb
+          offset: 5
+      - id: firestorm
+        initial-delay: 30
+        period: 45
+        repeat: 2
+        warnings:
+        - id: before
+          offset: -5
+      - id: enrage
+        initial-delay: 540
+        warnings:
+        - id: 30s
+          offset: -30
+        - id: 10s
+          offset: -10
+        - id: now
+          offset: -1
+      duration: 540
+  
+    - id: sloth
+      mechanics:
+      - id: mushroom
+        initial-delay: 0
+        period: 60
+        duties: 4
+        roles: 4
+        warnings:
+        - id: soon
+          offset: -11
+        - id: up
+          offset: -1
+      - id: poison
+        initial-delay: 25
+        period: 25
+        warnings:
+        - id: up
+      - id: enrage
+        initial-delay: 420
+        warnings:
+        - id: 30s
+          offset: -30
+        - id: 10s
+          offset: -10
+        - id: now
+          offset: -1
+      duration: 420

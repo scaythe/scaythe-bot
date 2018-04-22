@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.scaythe</groupId>
+    <artifactId>scaythe-parent</artifactId>
+    <version>LATEST-SNAPSHOT</version>
+    <relativePath>../scaythe-parent</relativePath>
+  </parent>
+
+  <groupId>com.scaythe.discord</groupId>
+  <artifactId>scaythe-bot</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-gcp-starter-config</artifactId>
+    </dependency>
+    <!-- Necessary for spring-cloud-gcp-starter-config -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>net.dv8tion</groupId>
+      <artifactId>JDA</artifactId>
+      <version>3.6.0_356</version>
+    </dependency>
+    <dependency>
+      <groupId>com.jagrosh</groupId>
+      <artifactId>jda-utilities</artifactId>
+      <version>2.1</version>
+      <scope>compile</scope>
+      <type>pom</type>
+    </dependency>
+    <dependency>
+      <groupId>com.sedmelluq</groupId>
+      <artifactId>lavaplayer</artifactId>
+      <version>1.2.63</version>
+    </dependency>
+    <dependency>
+      <groupId>com.ibm.watson.developer_cloud</groupId>
+      <artifactId>text-to-speech</artifactId>
+      <version>5.3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-texttospeech</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.immutables</groupId>
+      <artifactId>value</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.immutables</groupId>
+      <artifactId>serial</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>appengine-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>
