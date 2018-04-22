@@ -15,7 +15,7 @@ import com.scaythe.bot.discord.guild.GuildObjects;
 @CommandInfo(name = { "Language" }, description = "Set the bot language")
 @Author("Scaythe")
 @Component
-public class LanguageCommand extends I18nCommand {
+public class LanguageCommand extends ScaytheCommand {
 
     private static final String I18N_PREFIX = "discord.command.lang.";
 

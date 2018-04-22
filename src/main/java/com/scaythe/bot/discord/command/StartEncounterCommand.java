@@ -22,7 +22,7 @@ import net.dv8tion.jda.core.managers.AudioManager;
 @CommandInfo(name = { "start" }, description = "Starts an encounter")
 @Author("Scaythe")
 @Component
-public class StartEncounterCommand extends I18nCommand {
+public class StartEncounterCommand extends ScaytheCommand {
 
     private static final String I18N_PREFIX = "discord.command.start.";
 

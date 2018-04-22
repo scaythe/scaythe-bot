@@ -2,6 +2,7 @@ package com.scaythe.bot.discord.command;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -28,7 +29,7 @@ import net.dv8tion.jda.core.entities.MessageEmbed.Field;
 @CommandInfo(name = { "Get" }, description = "View speech text possible codes and defined values")
 @Author("Scaythe")
 @Component
-public class GetI18nCommand extends I18nCommand {
+public class GetI18nCommand extends ScaytheCommand {
 
     private static final String I18N_PREFIX = "discord.command.get.";
 
@@ -57,9 +58,9 @@ public class GetI18nCommand extends I18nCommand {
         GuildObjects guildObjects = event.getClient().getSettingsFor(event.getGuild());
 
         String code = event.getArgs().trim();
-
-        EmbedBuilder builder = new EmbedBuilder();
         
+        List<Field> fields = new ArrayList<>();
+
         if (code.isEmpty()) {
             codes().stream()
                     .map(
@@ -67,12 +68,19 @@ public class GetI18nCommand extends I18nCommand {
                                     c,
                                     guildObjects.messageSource(),
                                     guildObjects.config().locale()))
-                    .forEach(builder::addField);
+                    .forEach(fields::add);
         } else {
-            builder.addField(configLine(code, guildObjects.messageSource(), guildObjects.config().locale()));
+            fields.add(configLine(code, guildObjects.messageSource(), guildObjects.config().locale()));
         }
         
-        event.reply(builder.build());
+        for (Collection<Field> fieldsPart : split(fields, 20)) {
+            EmbedBuilder builder = new EmbedBuilder();
+            
+            fieldsPart.forEach(builder::addField);
+            
+            event.reply(builder.build());
+        }
+        
         return;
     }
 

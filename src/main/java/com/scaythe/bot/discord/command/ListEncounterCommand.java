@@ -22,7 +22,7 @@ import net.dv8tion.jda.core.entities.Guild;
 @CommandInfo(name = { "List Encounters" }, description = "List available encounters")
 @Author("Scaythe")
 @Component
-public class ListEncounterCommand extends I18nCommand {
+public class ListEncounterCommand extends ScaytheCommand {
     
     private static final String I18N_PREFIX = "discord.command.list.";
 
