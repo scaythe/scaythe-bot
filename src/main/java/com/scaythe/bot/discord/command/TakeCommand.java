@@ -3,7 +3,6 @@ package com.scaythe.bot.discord.command;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -70,8 +69,7 @@ public class TakeCommand extends ScaytheCommand {
                 .setText(member.getEffectiveName())
                 .setEventWaiter(eventWaiter)
                 .allowTextInput(false)
-                .useCancelButton(true)
-                .setTimeout(30, TimeUnit.SECONDS);
+                .useCancelButton(true);
     }
 
     private Menu encounterMenu(Member member, GuildObjects guildObjects, CommandEvent event) {

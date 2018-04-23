@@ -76,8 +76,7 @@ public class StartCommand extends ScaytheCommand {
                 .setText(member.getEffectiveName())
                 .setEventWaiter(eventWaiter)
                 .allowTextInput(false)
-                .useCancelButton(true)
-                .setTimeout(30, TimeUnit.SECONDS);
+                .useCancelButton(true);
     }
 
     private Menu encounterMenu(Member member, GuildObjects guildObjects, CommandEvent event) {
