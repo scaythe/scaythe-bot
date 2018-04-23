@@ -40,12 +40,15 @@ public class SpeechMessageResolver {
             MessageSource source) {
         List<String> args = new ArrayList<>();
 
-        if (mechanic.duties() != 0 && mechanic.roles() != 0) {
+        if (mechanic.duties() != 0) {
             args.add(
                     MessageResolver.message(
                             codeBuilder.duty(encounter, mechanic, counter),
                             locale,
                             source));
+        }
+
+        if (mechanic.roles() != 0) {
             args.add(
                     MessageResolver.message(
                             codeBuilder.role(encounter, mechanic, counter),

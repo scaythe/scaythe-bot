@@ -89,7 +89,7 @@ scaythe:
       mechanics:
       - id: mushroom
         initial-delay: 0
-        period: 60
+        period: 50
         duties: 4
         roles: 4
         warnings:
@@ -112,3 +112,54 @@ scaythe:
         - id: now
           offset: -1
       duration: 420
+
+    - id: trio
+      mechanics:
+      - id: berg
+        initial-delay: 130
+        warnings:
+        - id: before
+          offset: -10
+        - id: spawn
+      - id: zane
+        initial-delay: 250
+        warnings:
+        - id: before
+          offset: -10
+        - id: spawn
+      - id: narella
+        initial-delay: 373
+        warnings:
+        - id: before
+          offset: -10
+        - id: spawn
+      - id: mortar
+        initial-delay: 235
+        period: 60
+        repeat: 4
+        roles: 1
+        warnings:
+        - id: before
+          offset: -15
+      - id: early-saboteur
+        initial-delay: 177
+        roles: 1
+        warnings:
+        - id: inc
+          offset: -5
+      - id: saboteur
+        initial-delay: 330
+        period: 30
+        repeat: 6
+        roles: 1
+        warnings:
+        - id: inc
+          offset: -5
+      - id: enrage
+        initial-delay: 540
+        warnings:
+        - id: 30s
+          offset: -30
+        - id: 10s
+          offset: -10
+      duration: 540

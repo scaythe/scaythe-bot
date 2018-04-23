@@ -15,12 +15,15 @@ public class EncounterPlayer {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final GuildObjects guildObjects;
-    
+
     private final SpeechMessageResolver messageResolver;
 
     private final EncounterExecutor executor;
 
-    public EncounterPlayer(Encounter encounter, GuildObjects guildObjects, SpeechMessageResolver messageResolver) {
+    public EncounterPlayer(
+            Encounter encounter,
+            GuildObjects guildObjects,
+            SpeechMessageResolver messageResolver) {
         log.debug("creating for {}", encounter.id());
 
         this.guildObjects = guildObjects;
@@ -37,7 +40,8 @@ public class EncounterPlayer {
                 event.warning().id());
 
         Locale locale = guildObjects.config().locale();
-        guildObjects.player().play(messageResolver.message(event, locale, guildObjects.messageSource()), locale);
+        guildObjects.player()
+                .play(messageResolver.message(event, locale, guildObjects.messageSource()), locale);
     }
 
     public void stop() {

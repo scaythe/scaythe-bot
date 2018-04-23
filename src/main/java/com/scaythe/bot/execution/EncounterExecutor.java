@@ -35,19 +35,7 @@ public class EncounterExecutor {
 
     public void stop() {
         log.debug("stopping");
-        executor.shutdown();
-        
-        try {
-            boolean ended = executor.awaitTermination(2, TimeUnit.SECONDS);
-            
-            if (!ended) {
-                log.warn("executor shutdown timeout, shutdownNow");
-                Collection<Runnable> runnables = executor.shutdownNow();
-                runnables.forEach(r -> log.info("runnable interrompu : {}", r.toString()));
-            }
-        } catch (InterruptedException e) {
-            log.warn("executor awaitTermination interrupted");
-        }
+        executor.shutdownNow();
     }
 
     private void initCounters(Encounter encounter) {
