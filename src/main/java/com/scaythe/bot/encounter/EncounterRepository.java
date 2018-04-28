@@ -9,15 +9,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.scaythe.bot.config.Gw2Config;
+import com.scaythe.bot.config.EncountersConfig;
 
 @Service
 public class EncounterRepository {
 
     private final Map<String, Encounter> encounters;
 
-    public EncounterRepository(Gw2Config config, EncounterConfigMapper configMapper) {
-        this.encounters = configMapper.encounters(config.getEncounters()).stream().collect(
+    public EncounterRepository(EncountersConfig config, EncounterConfigMapper configMapper) {
+        this.encounters = configMapper.encounters(config.getList()).stream().collect(
                 Collectors.toMap(Encounter::id, Function.identity()));
     }
     

@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 import com.scaythe.bot.config.encounter.EncounterConfig;
 
 @Component
-@ConfigurationProperties(ConfigPrefixes.GW)
-public class Gw2Config {
-    private final List<EncounterConfig> encounters = new ArrayList<>();
+@ConfigurationProperties(ConfigPrefixes.ENCOUNTERS)
+public class EncountersConfig {
+    private final List<EncounterConfig> list = new ArrayList<>();
 
-    public List<EncounterConfig> getEncounters() {
-        return encounters;
+    public List<EncounterConfig> getList() {
+        return list;
     }
 }

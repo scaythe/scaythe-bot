@@ -39,9 +39,11 @@ public class EncounterPlayer {
                 event.mechanic().id(),
                 event.warning().id());
 
-        Locale locale = guildObjects.config().locale();
-        guildObjects.player()
-                .play(messageResolver.message(event, locale, guildObjects.messageSource()), locale);
+        Locale locale = guildObjects.settings().locale();
+        guildObjects.player().play(
+                messageResolver.message(event, locale, guildObjects.messageSource()),
+                locale,
+                guildObjects.settings().voice(locale));
     }
 
     public void stop() {

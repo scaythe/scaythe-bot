@@ -5,15 +5,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 
 import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.jagrosh.jdautilities.menu.OrderedMenu;
 import com.scaythe.bot.encounter.Encounter;
 import com.scaythe.bot.encounter.Mechanic;
 import com.scaythe.bot.i18n.MessageResolver;
+
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
 
 public abstract class ScaytheCommand extends Command {
 
@@ -36,19 +42,19 @@ public abstract class ScaytheCommand extends Command {
     public String message(String code, Locale locale, MessageSource source) {
         return MessageResolver.message(i18nPrefix + code, locale, source);
     }
-    
+
     public static <T> Collection<Collection<T>> split(Collection<T> collection, int max) {
         Collection<Collection<T>> result = new ArrayList<>();
-        
+
         List<T> remaining = new ArrayList<>(collection);
-        
+
         while (!remaining.isEmpty()) {
             List<T> sublist = remaining.subList(0, Math.min(max, remaining.size()));
             result.add(new ArrayList<>(sublist));
-            
+
             sublist.clear();
         }
-        
+
         return result;
     }
 
@@ -62,13 +68,26 @@ public abstract class ScaytheCommand extends Command {
             if (n < mechanic.roles()) {
                 return Optional.of(n);
             }
-        } catch (NumberFormatException e) {
-        }
-        
+        } catch (NumberFormatException e) {}
+
         return Optional.empty();
     }
-    
+
     public String role(int role) {
         return Integer.toString(role + 1);
+    }
+
+    public OrderedMenu.Builder ordered(Member member, EventWaiter eventWaiter) {
+        return new OrderedMenu.Builder().setUsers(member.getUser())
+                .setText(member.getEffectiveName())
+                .setEventWaiter(eventWaiter)
+                .allowTextInput(false)
+                .useCancelButton(true)
+                .setCancel(this::delete)
+                .setTimeout(1, TimeUnit.HOURS);
+    }
+
+    private void delete(Message message) {
+        message.delete().queue(v -> {}, t -> {});
     }
 }

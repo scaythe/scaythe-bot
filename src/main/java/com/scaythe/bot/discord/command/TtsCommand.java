@@ -1,5 +1,7 @@
 package com.scaythe.bot.discord.command;
 
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -43,7 +45,8 @@ public class TtsCommand extends Command {
         log.info("saying {}", text);
         
         GuildObjects guildObjects = event.getClient().getSettingsFor(event.getGuild());
+        Locale locale = guildObjects.settings().locale();
         
-        guildObjects.player().play(text, guildObjects.config().locale());
+        guildObjects.player().play(text, locale, guildObjects.settings().voice(locale));
     }
 }

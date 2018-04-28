@@ -67,10 +67,10 @@ public class GetI18nCommand extends ScaytheCommand {
                             c -> configLine(
                                     c,
                                     guildObjects.messageSource(),
-                                    guildObjects.config().locale()))
+                                    guildObjects.settings().locale()))
                     .forEach(fields::add);
         } else {
-            fields.add(configLine(code, guildObjects.messageSource(), guildObjects.config().locale()));
+            fields.add(configLine(code, guildObjects.messageSource(), guildObjects.settings().locale()));
         }
         
         for (Collection<Field> fieldsPart : split(fields, 20)) {
@@ -80,8 +80,6 @@ public class GetI18nCommand extends ScaytheCommand {
             
             event.reply(builder.build());
         }
-        
-        return;
     }
 
     private List<String> codes() {

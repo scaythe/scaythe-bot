@@ -8,23 +8,14 @@ import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import com.jagrosh.jdautilities.command.GuildSettingsManager;
-import com.scaythe.bot.discord.sound.AudioPlayerSendHandler;
-import com.scaythe.bot.discord.sound.QueuedFilePlayer;
-import com.scaythe.bot.discord.sound.TtsPlayer;
+import com.scaythe.bot.config.DefaultsConfig;
+import com.scaythe.bot.db.GuildPersistence;
+import com.scaythe.bot.db.PropertyPersistence;
 import com.scaythe.bot.execution.EncounterPlayer;
-import com.scaythe.bot.file.TempFileService;
-import com.scaythe.bot.i18n.ConfigurableMessageSource;
-import com.scaythe.bot.tts.GoogleTtsService;
-import com.scaythe.bot.tts.TtsService;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
-import net.dv8tion.jda.core.audio.AudioSendHandler;
 import net.dv8tion.jda.core.entities.Guild;
 
 @Service
@@ -32,53 +23,50 @@ public class GuildManager implements GuildSettingsManager<GuildObjects> {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final AudioPlayerManager playerManager;
-    private final TempFileService fileService;
-    private final TtsService ttsService;
-    private final MessageSource messageSource;
+    private final GuildPlayerBuilder playerBuilder;
+    private final GuildMessageSourceBuilder messageSourceBuilder;
+    private final GuildPersistence guildPersistence;
+    private final PropertyPersistence propertyPersistence;
+    private final DefaultsConfig defaultsConfig;
 
     private final Map<Long, GuildObjects> map = new ConcurrentHashMap<>();
 
-    @Autowired
     public GuildManager(
-            AudioPlayerManager playerManager,
-            TempFileService fileService,
-            GoogleTtsService ttsService,
-            MessageSource messageSource) {
-        this.playerManager = playerManager;
-        this.fileService = fileService;
-        this.ttsService = ttsService;
-        this.messageSource = messageSource;
+            GuildPlayerBuilder playerBuilder,
+            GuildMessageSourceBuilder messageSourceBuilder,
+            GuildPersistence guildPersistence,
+            PropertyPersistence propertyPersistence,
+            DefaultsConfig defaultsConfig) {
+        this.playerBuilder = playerBuilder;
+        this.messageSourceBuilder = messageSourceBuilder;
+        this.guildPersistence = guildPersistence;
+        this.propertyPersistence = propertyPersistence;
+        this.defaultsConfig = defaultsConfig;
     }
 
     @Override
     public GuildObjects getSettings(Guild guild) {
-        GuildObjects objects = this.map.get(guild.getIdLong());
-
-        if (objects == null) {
-            objects = create(guild);
-            this.map.put(guild.getIdLong(), objects);
+        if (!guildPersistence.exists(guild)) {
+            setGuildDefaults(guild);
         }
-
-        return objects;
+        
+        return this.map.computeIfAbsent(guild.getIdLong(), l -> create(guild));
+    }
+    
+    private void setGuildDefaults(Guild guild) {
+        propertyPersistence.language(guild, defaultsConfig.getLanguage());
+        defaultsConfig.getVoices().forEach((l, v) -> propertyPersistence.voice(guild, l, v));
+        
+        guildPersistence.save(guild);
     }
 
     private GuildObjects create(Guild guild) {
         log.info("creating settings for guild {}", guild.getName());
 
-        AudioPlayer audioPlayer = playerManager.createPlayer();
-
-        AudioSendHandler ash = new AudioPlayerSendHandler(audioPlayer);
-
-        guild.getAudioManager().setSendingHandler(ash);
-
-        QueuedFilePlayer filePlayer = new QueuedFilePlayer(audioPlayer, fileService);
-
-        TtsPlayer player = new TtsPlayer(playerManager, ttsService, filePlayer, fileService);
-
         return GuildObjectsImmutable.builder()
-                .player(player)
-                .messageSource(new ConfigurableMessageSource(messageSource))
+                .player(playerBuilder.build(guild))
+                .messageSource(messageSourceBuilder.build(guild))
+                .settings(new GuildSettings(propertyPersistence, guild))
                 .build();
     }
 
@@ -86,8 +74,7 @@ public class GuildManager implements GuildSettingsManager<GuildObjects> {
     private void clean() {
         map.values()
                 .stream()
-                .map(GuildObjects::config)
-                .map(MutableConfig::player)
+                .map(GuildObjects::currentPlayer)
                 .filter(Objects::nonNull)
                 .forEach(EncounterPlayer::stop);
     }

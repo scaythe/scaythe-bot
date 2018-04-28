@@ -1,17 +1,25 @@
 scaythe:
   discord:
-# Must be set to your bot token
+# Bot token (required)
 #    token:
-# Your user snowflake id
+# Owner snowflake id (required)
 #    owner:
     prefix: "-"
-  tts:
-    ibm:
 # if using the ibm watson tts, these must be set to the credentials for the tts service
+#  tts:
+#    ibm:
 #      login:
 #      password:
-  gw2:
-    encounters:
+  language:
+    locales:
+    - en
+    - fr
+  defaults:
+    language: en
+    voices:
+      fr: fr-FR-Standard-C
+  encounters:
+    list:
     - id: dhuum
       mechanics:
       - id: green

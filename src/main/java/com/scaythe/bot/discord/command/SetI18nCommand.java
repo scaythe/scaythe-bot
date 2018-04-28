@@ -2,6 +2,7 @@ package com.scaythe.bot.discord.command;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class SetI18nCommand extends ScaytheCommand {
 
         if (args.isEmpty()) {
             event.reply(
-                    message("empty", guildObjects.config().locale(), guildObjects.messageSource()));
+                    message("empty", guildObjects.settings().locale(), guildObjects.messageSource()));
             return;
         }
 
@@ -48,40 +49,42 @@ public class SetI18nCommand extends ScaytheCommand {
 
         String code = argsList.get(0);
         if (argsList.size() == 1) {
-            String old = guildObjects.messageSource().unset(code, guildObjects.config().locale());
+            Optional<String> old
+                    = guildObjects.messageSource().unset(code, guildObjects.settings().locale());
 
-            if (old == null) {
+            if (!old.isPresent()) {
                 event.reply(
                         message(
                                 "not-set",
-                                guildObjects.config().locale(),
+                                guildObjects.settings().locale(),
                                 guildObjects.messageSource()));
+
                 return;
             }
 
             String value = guildObjects.messageSource()
-                    .getMessage(code, null, guildObjects.config().locale());
+                    .getMessage(code, null, guildObjects.settings().locale());
             builder.addField(
                     code,
                     message(
                             "unset",
-                            Arrays.asList(value, old),
-                            guildObjects.config().locale(),
+                            Arrays.asList(value, old.get()),
+                            guildObjects.settings().locale(),
                             guildObjects.messageSource()),
                     false);
         } else {
             String value = argsList.get(1);
 
-            String old
-                    = guildObjects.messageSource().set(value, code, guildObjects.config().locale());
+            Optional<String> old
+                    = guildObjects.messageSource().set(code, guildObjects.settings().locale(), value);
 
-            if (old == null) {
+            if (!old.isPresent()) {
                 builder.addField(
                         code,
                         message(
                                 "set",
                                 Arrays.asList(value),
-                                guildObjects.config().locale(),
+                                guildObjects.settings().locale(),
                                 guildObjects.messageSource()),
                         false);
             } else {
@@ -89,8 +92,8 @@ public class SetI18nCommand extends ScaytheCommand {
                         code,
                         message(
                                 "replace",
-                                Arrays.asList(value, old),
-                                guildObjects.config().locale(),
+                                Arrays.asList(value, old.get()),
+                                guildObjects.settings().locale(),
                                 guildObjects.messageSource()),
                         false);
             }

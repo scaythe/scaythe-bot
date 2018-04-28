@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +47,7 @@ public class StartCommand extends ScaytheCommand {
             SpeechMessageResolver speechMessageResolver,
             EventWaiter eventWaiter) {
         super(I18N_PREFIX);
-        
+
         this.encounterRepository = encounterRepository;
         this.speechMessageResolver = speechMessageResolver;
         this.eventWaiter = eventWaiter;
@@ -61,30 +62,26 @@ public class StartCommand extends ScaytheCommand {
 
         GuildObjects guildObjects = event.getClient().getSettingsFor(event.getGuild());
 
-        EncounterPlayer player = guildObjects.config().player();
+        EncounterPlayer player = guildObjects.currentPlayer();
 
         if (player != null) {
             player.stop();
-            guildObjects.config().player(null);
+            guildObjects.currentPlayer(null);
         }
-        
+
         encounterMenu(event.getMember(), guildObjects, event).display(event.getChannel());
     }
 
-    private OrderedMenu.Builder common(Member member) {
-        return new OrderedMenu.Builder().setUsers(member.getUser())
-                .setText(member.getEffectiveName())
-                .setEventWaiter(eventWaiter)
-                .allowTextInput(false)
-                .useCancelButton(true);
+    private OrderedMenu.Builder ordered(Member member) {
+        return ordered(member, eventWaiter);
     }
 
     private Menu encounterMenu(Member member, GuildObjects guildObjects, CommandEvent event) {
-        return common(member)
+        return ordered(member)
                 .setDescription(
                         message(
                                 "choose.encounter",
-                                guildObjects.config().locale(),
+                                guildObjects.settings().locale(),
                                 guildObjects.messageSource()))
                 .setChoices(encountersIds())
                 .setSelection(encounterSelection(member, guildObjects, event))
@@ -104,11 +101,11 @@ public class StartCommand extends ScaytheCommand {
             Member member,
             GuildObjects guildObjects,
             CommandEvent event) {
-        return common(member)
+        return ordered(member)
                 .setDescription(
                         message(
                                 "choose.encounter",
-                                guildObjects.config().locale(),
+                                guildObjects.settings().locale(),
                                 guildObjects.messageSource()))
                 .setChoices("immediate", "delayed")
                 .setSelection(startTypeSelection(encounter, member, guildObjects, event))
@@ -147,10 +144,11 @@ public class StartCommand extends ScaytheCommand {
         AudioManager am = vc.getGuild().getAudioManager();
 
         am.openAudioConnection(vc);
-        
+
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-        executor.execute(() -> play("delayed-start.launched", Arrays.asList(encounter.id()), guildObjects));
+        executor.execute(
+                () -> play("delayed-start.launched", Arrays.asList(encounter.id()), guildObjects));
         executor.schedule(() -> play("delayed-start.3", guildObjects), 3, TimeUnit.SECONDS);
         executor.schedule(() -> play("delayed-start.2", guildObjects), 4, TimeUnit.SECONDS);
         executor.schedule(() -> play("delayed-start.1", guildObjects), 5, TimeUnit.SECONDS);
@@ -168,9 +166,12 @@ public class StartCommand extends ScaytheCommand {
     }
 
     private void play(String code, List<String> args, GuildObjects guildObjects) {
+        Locale locale = guildObjects.settings().locale();
+
         guildObjects.player().play(
-                MessageResolver.message(code, args, guildObjects.config().locale(), guildObjects.messageSource()),
-                guildObjects.config().locale());
+                MessageResolver.message(code, args, locale, guildObjects.messageSource()),
+                locale,
+                guildObjects.settings().voice(locale));
     }
 
     private void startEncounter(
@@ -185,15 +186,15 @@ public class StartCommand extends ScaytheCommand {
         AudioManager am = vc.getGuild().getAudioManager();
 
         am.openAudioConnection(vc);
-        
-        guildObjects.config()
-                .player(new EncounterPlayer(encounter, guildObjects, speechMessageResolver));
+
+        guildObjects
+                .currentPlayer(new EncounterPlayer(encounter, guildObjects, speechMessageResolver));
 
         event.reply(
                 message(
                         "started",
                         Collections.singletonList(encounter.id()),
-                        guildObjects.config().locale(),
+                        guildObjects.settings().locale(),
                         guildObjects.messageSource()));
     }
 
