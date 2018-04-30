@@ -83,7 +83,7 @@ public class StartCommand extends ScaytheCommand {
                                 "choose.encounter",
                                 guildObjects.settings().locale(),
                                 guildObjects.messageSource()))
-                .setChoices(encountersIds())
+                .setChoices(encountersNames(guildObjects))
                 .setSelection(encounterSelection(member, guildObjects, event))
                 .build();
     }
@@ -148,7 +148,10 @@ public class StartCommand extends ScaytheCommand {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
         executor.execute(
-                () -> play("delayed-start.launched", Arrays.asList(encounter.id()), guildObjects));
+                () -> play(
+                        "delayed-start.launched",
+                        Arrays.asList(encounterName(encounter, guildObjects)),
+                        guildObjects));
         executor.schedule(() -> play("delayed-start.3", guildObjects), 3, TimeUnit.SECONDS);
         executor.schedule(() -> play("delayed-start.2", guildObjects), 4, TimeUnit.SECONDS);
         executor.schedule(() -> play("delayed-start.1", guildObjects), 5, TimeUnit.SECONDS);
@@ -202,8 +205,15 @@ public class StartCommand extends ScaytheCommand {
         return encounters().skip(n).findFirst().get();
     }
 
-    private String[] encountersIds() {
-        return encounters().map(Encounter::id).toArray(String[]::new);
+    private String[] encountersNames(GuildObjects guildObjects) {
+        return encounters().map(e -> encounterName(e, guildObjects)).toArray(String[]::new);
+    }
+
+    private String encounterName(Encounter encounter, GuildObjects guildObjects) {
+        return MessageResolver.message(
+                encounter.id() + ".name",
+                guildObjects.settings().locale(),
+                guildObjects.messageSource());
     }
 
     private Stream<Encounter> encounters() {

@@ -66,7 +66,7 @@ public class GoogleTtsService implements TtsService {
     }
 
     @Override
-    @Cacheable("tts")
+    @Cacheable("voices")
     public Collection<VoiceDescriptor> voices(Locale locale) throws TtsException {
         try (TextToSpeechClient tts = TextToSpeechClient.create()) {
             ListVoicesRequest request = ListVoicesRequest.newBuilder()

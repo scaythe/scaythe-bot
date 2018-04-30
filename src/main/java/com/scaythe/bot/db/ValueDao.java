@@ -3,6 +3,10 @@ package com.scaythe.bot.db;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import com.google.cloud.datastore.Datastore;
@@ -16,12 +20,15 @@ public class ValueDao {
 
     private static final String VALUE_FIELD = "value";
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final Datastore datastore;
 
     public ValueDao(Datastore datastore) {
         this.datastore = datastore;
     }
 
+    @Cacheable(cacheNames = "properties", key = "{#guild.idLong, #kind, #identifier, #locale}")
     public Optional<String> get(
             Guild guild,
             String kind,
@@ -33,6 +40,7 @@ public class ValueDao {
         return entity.map(e -> e.getString(VALUE_FIELD));
     }
 
+    @CacheEvict(cacheNames = "properties", key = "{#guild.idLong, #kind, #identifier, #locale}")
     public void save(
             Guild guild,
             String kind,
@@ -46,6 +54,7 @@ public class ValueDao {
         datastore.put(entity);
     }
 
+    @CacheEvict(cacheNames = "properties", key = "{#guild.idLong, #kind, #identifier, #locale}")
     public void delete(Guild guild, String kind, String identifier, Optional<Locale> locale) {
         datastore.delete(key(guild, kind, identifier, locale));
     }

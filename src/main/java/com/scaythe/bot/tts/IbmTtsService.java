@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
@@ -21,7 +20,7 @@ import com.scaythe.bot.config.TtsConfig;
 public class IbmTtsService implements TtsService {
 
     private final TextToSpeech tts;
-    
+
     private final Map<Locale, String> voices = new HashMap<>();
 
     public IbmTtsService(TtsConfig config) {
@@ -29,6 +28,7 @@ public class IbmTtsService implements TtsService {
     }
 
     @Override
+    @Cacheable("tts")
     public byte[] read(String text, Locale locale) throws TtsException {
         return read(text, locale, voiceFromLocale(locale));
     }
@@ -48,8 +48,8 @@ public class IbmTtsService implements TtsService {
     }
 
     @Override
-    @Cacheable("tts")
-    public Collection<VoiceDescriptor> voices(Locale locale) throws TtsException {
+    @Cacheable("voices")
+    public Collection<VoiceDescriptor> voices(Locale locale) {
         return tts.listVoices()
                 .execute()
                 .getVoices()
@@ -59,11 +59,10 @@ public class IbmTtsService implements TtsService {
                 .collect(Collectors.toList());
     }
 
-    private String voiceFromLocale(Locale locale) throws TtsException {
-        Optional<String> voice = voices(locale).stream().map(VoiceDescriptor::name).findAny();
-        
-        voice.ifPresent(v -> voices.put(locale, v));
-        
-        return voice.orElse(null);
+    private String voiceFromLocale(Locale locale) {
+        return voices.computeIfAbsent(
+                locale,
+                l -> voices(l).stream().map(VoiceDescriptor::name).findAny().orElseGet(
+                        () -> voiceFromLocale(Locale.ENGLISH)));
     }
 }
