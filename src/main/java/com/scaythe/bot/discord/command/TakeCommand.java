@@ -36,6 +36,8 @@ import net.dv8tion.jda.core.managers.AudioManager;
 public class TakeCommand extends ScaytheCommand {
 
     private static final String I18N_PREFIX = "discord.command.take.";
+    private static final String SET_ACTION = "set";
+    private static final String UNSET_ACTION = "unset";
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -61,141 +63,167 @@ public class TakeCommand extends ScaytheCommand {
     protected void execute(CommandEvent event) {
         GuildObjects guildObjects = event.getClient().getSettingsFor(event.getGuild());
 
-        encounterMenu(event.getMember(), guildObjects, event).display(event.getChannel());
+        String action = event.getArgs().trim();
+        
+        if (!action.equals(UNSET_ACTION)) {
+            action = SET_ACTION;
+        }
+
+        MenuObjects objects = MenuObjectsImmutable.builder()
+                .member(event.getMember())
+                .guildObjects(guildObjects)
+                .event(event)
+                .action(action)
+                .build();
+
+        encounterMenu(objects).display(event.getChannel());
     }
 
     private OrderedMenu.Builder ordered(Member member) {
         return ordered(member, eventWaiter);
     }
 
-    private Menu encounterMenu(Member member, GuildObjects guildObjects, CommandEvent event) {
-        return ordered(member)
+    private Menu encounterMenu(MenuObjects objects) {
+        return ordered(objects.member())
                 .setDescription(
                         message(
                                 "choose.encounter",
-                                guildObjects.settings().locale(),
-                                guildObjects.messageSource()))
-                .setChoices(encountersNames(guildObjects))
-                .setSelection(encounterSelection(member, guildObjects, event))
+                                objects.guildObjects().settings().locale(),
+                                objects.guildObjects().messageSource()))
+                .setChoices(encountersNames(objects.guildObjects()))
+                .setSelection(encounterSelection(objects))
                 .build();
     }
 
-    private BiConsumer<Message, Integer> encounterSelection(
-            Member member,
-            GuildObjects guildObjects,
-            CommandEvent event) {
-        return (m, n) -> mechanicMenu(encounter(n - 1), member, guildObjects, event)
+    private BiConsumer<Message, Integer> encounterSelection(MenuObjects objects) {
+        return (m, n) -> mechanicMenu(encounter(n - 1), objects)
                 .ifPresent(menu -> menu.display(m.getChannel()));
     }
 
-    private Optional<Menu> mechanicMenu(
-            Encounter encounter,
-            Member member,
-            GuildObjects guildObjects,
-            CommandEvent event) {
-        String[] mechanicsIds = mechanicsNames(encounter, guildObjects);
+    private Optional<Menu> mechanicMenu(Encounter encounter, MenuObjects objects) {
+        String[] mechanicsNames = mechanicsNames(encounter, objects.guildObjects());
 
-        if (mechanicsIds.length == 1) {
-            return roleMenu(mechanic(0, encounter), encounter, member, guildObjects, event);
+        if (mechanicsNames.length == 1) {
+            return roleMenu(mechanic(0, encounter), encounter, objects);
         }
 
-        return Optional
-                .of(
-                        ordered(member)
-                                .setDescription(
-                                        message(
-                                                "choose.mechanic",
-                                                Arrays.asList(
-                                                        encounterName(encounter, guildObjects)),
-                                                guildObjects.settings().locale(),
-                                                guildObjects.messageSource()))
-                                .setChoices(mechanicsIds)
-                                .setSelection(
-                                        mechanicSelection(encounter, member, guildObjects, event))
-                                .build());
+        return Optional.of(
+                ordered(objects.member())
+                        .setDescription(
+                                message(
+                                        "choose.mechanic",
+                                        Arrays.asList(
+                                                encounterName(encounter, objects.guildObjects())),
+                                        objects.guildObjects().settings().locale(),
+                                        objects.guildObjects().messageSource()))
+                        .setChoices(mechanicsNames)
+                        .setSelection(mechanicSelection(encounter, objects))
+                        .build());
     }
 
     private BiConsumer<Message, Integer> mechanicSelection(
             Encounter encounter,
-            Member member,
-            GuildObjects guildObjects,
-            CommandEvent event) {
-        return (
-                m,
-                n) -> roleMenu(mechanic(n - 1, encounter), encounter, member, guildObjects, event)
-                        .ifPresent(menu -> menu.display(m.getChannel()));
+            MenuObjects objects) {
+        return (m, n) -> roleMenu(mechanic(n - 1, encounter), encounter, objects)
+                .ifPresent(menu -> menu.display(m.getChannel()));
     }
 
-    private Optional<Menu> roleMenu(
-            Mechanic mechanic,
-            Encounter encounter,
-            Member member,
-            GuildObjects guildObjects,
-            CommandEvent event) {
+    private Optional<Menu> roleMenu(Mechanic mechanic, Encounter encounter, MenuObjects objects) {
         if (mechanic.roles() == 1) {
-            setRole(0, mechanic, encounter, member, guildObjects, event);
+            setRole(0, mechanic, encounter, objects);
 
             return Optional.empty();
         }
 
         return Optional.of(
-                ordered(member)
-                        .setDescription(
-                                message(
-                                        "choose.role",
-                                        Arrays.asList(
-                                                mechanicName(mechanic, encounter, guildObjects),
-                                                encounterName(encounter, guildObjects)),
-                                        guildObjects.settings().locale(),
-                                        guildObjects.messageSource()))
+                ordered(objects.member()).setDescription(
+                        message(
+                                "choose.role",
+                                Arrays.asList(
+                                        mechanicName(mechanic, encounter, objects.guildObjects()),
+                                        encounterName(encounter, objects.guildObjects())),
+                                objects.guildObjects().settings().locale(),
+                                objects.guildObjects().messageSource()))
                         .setChoices(rolesIds(mechanic))
-                        .setSelection(
-                                roleSelection(mechanic, encounter, member, guildObjects, event))
+                        .setSelection(roleSelection(mechanic, encounter, objects))
                         .build());
     }
 
     private BiConsumer<Message, Integer> roleSelection(
             Mechanic mechanic,
             Encounter encounter,
-            Member member,
-            GuildObjects guildObjects,
-            CommandEvent event) {
-        return (m, n) -> setRole(n - 1, mechanic, encounter, member, guildObjects, event);
+            MenuObjects objects) {
+        return (m, n) -> setRole(n - 1, mechanic, encounter, objects);
     }
 
-    private void setRole(
-            int role,
-            Mechanic mechanic,
-            Encounter encounter,
-            Member member,
-            GuildObjects guildObjects,
-            CommandEvent event) {
-        Locale locale = guildObjects.settings().locale();
+    private void setRole(int role, Mechanic mechanic, Encounter encounter, MenuObjects objects) {
+        Locale locale = objects.guildObjects().settings().locale();
+        
+        if (!objects.action().isPresent()) {
+            String message = message(
+                    "no-action",
+                    locale,
+                    objects.guildObjects().messageSource());
 
-        guildObjects.messageSource()
-                .set(codeBuilder.role(encounter, mechanic, role), member.getEffectiveName());
-
-        String message = message(
-                "taken",
-                Arrays.asList(
-                        member.getEffectiveName(),
-                        role(role),
-                        mechanicName(mechanic, encounter, guildObjects),
-                        encounterName(encounter, guildObjects)),
-                locale,
-                guildObjects.messageSource());
-
-        event.reply(message);
-
-        VoiceChannel vc = event.getMember().getVoiceState().getChannel();
-        if (vc == null) {
+            objects.event().reply(message);
+            
             return;
         }
+        
+        String action = objects.action().get();
 
-        AudioManager am = vc.getGuild().getAudioManager();
-        am.openAudioConnection(vc);
+        if (action.equals(SET_ACTION)) {
+            objects.guildObjects().messageSource().set(
+                    codeBuilder.role(encounter, mechanic, role),
+                    objects.member().getEffectiveName());
+    
+            String message = message(
+                    "taken",
+                    Arrays.asList(
+                            objects.member().getEffectiveName(),
+                            role(role),
+                            mechanicName(mechanic, encounter, objects.guildObjects()),
+                            encounterName(encounter, objects.guildObjects())),
+                    locale,
+                    objects.guildObjects().messageSource());
+    
+            objects.event().reply(message);
+    
+            VoiceChannel vc = objects.event().getMember().getVoiceState().getChannel();
+            if (vc == null) {
+                return;
+            }
+    
+            AudioManager am = vc.getGuild().getAudioManager();
+            am.openAudioConnection(vc);
+    
+            objects.guildObjects()
+                    .player()
+                    .play(message, locale, objects.guildObjects().settings().voice(locale));
+        } else if (action.equals(UNSET_ACTION)) {
+            objects.guildObjects().messageSource().unset(
+                    codeBuilder.role(encounter, mechanic, role));
+    
+            String message = message(
+                    "unset",
+                    Arrays.asList(
+                            role(role),
+                            mechanicName(mechanic, encounter, objects.guildObjects()),
+                            encounterName(encounter, objects.guildObjects())),
+                    locale,
+                    objects.guildObjects().messageSource());
+    
+            objects.event().reply(message);
+        } else {
+            String message = message(
+                    "unknown-action",
+                    locale,
+                    objects.guildObjects().messageSource());
 
-        guildObjects.player().play(message, locale, guildObjects.settings().voice(locale));
+            objects.event().reply(message);
+            
+            return;
+        }
     }
 
     private Encounter encounter(int n) {

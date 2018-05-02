@@ -94,10 +94,6 @@ public class GetI18nCommand extends ScaytheCommand {
                 for (int i = 0; i < mechanic.duties(); i++) {
                     codes.add(codeBuilder.duty(encounter, mechanic, i));
                 }
-
-                for (int i = 0; i < mechanic.roles(); i++) {
-                    codes.add(codeBuilder.role(encounter, mechanic, i));
-                }
             }
         }
 
