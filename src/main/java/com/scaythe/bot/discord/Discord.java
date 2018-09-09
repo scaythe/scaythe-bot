@@ -5,6 +5,7 @@ import java.util.List;
 import javax.security.auth.login.LoginException;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import com.jagrosh.jdautilities.command.Command;
@@ -12,26 +13,25 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.PingCommand;
-import com.scaythe.bot.config.DiscordConfig;
 import com.scaythe.bot.discord.guild.GuildManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 
 @Configuration
+@ComponentScan
 public class Discord {
 
     @Bean
     public JDA jda(CommandClient commandClient, EventWaiter eventWaiter, DiscordConfig config)
             throws LoginException, InterruptedException {
-        return new JDABuilder(AccountType.BOT).setToken(config.getToken())
-                .addEventListener(commandClient)
+        return new JDABuilder(config.getToken()).addEventListener(commandClient)
                 .addEventListener(eventWaiter)
-                .buildBlocking();
+                .build()
+                .awaitReady();
     }
 
     @Bean
@@ -53,8 +53,8 @@ public class Discord {
         AudioSourceManagers.registerLocalSource(playerManager);
         return playerManager;
     }
-    
-    @Bean
+
+    @Bean(destroyMethod = "")
     public EventWaiter eventWaiter() {
         return new EventWaiter();
     }

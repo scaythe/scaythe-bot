@@ -1,4 +1,4 @@
-package com.scaythe.bot.config;
+package com.scaythe.bot.discord;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
+import com.scaythe.bot.config.ConfigPrefixes;
 
 @Component
 @ConfigurationProperties(ConfigPrefixes.DEFAULTS)

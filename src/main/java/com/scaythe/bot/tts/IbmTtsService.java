@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import com.google.common.io.ByteStreams;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.SynthesizeOptions;
-import com.scaythe.bot.config.TtsConfig;
 
 @Service
 public class IbmTtsService implements TtsService {

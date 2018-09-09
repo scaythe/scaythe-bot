@@ -58,8 +58,8 @@ scaythe:
           offset: -60
         - id: 30s
           offset: -30
-        - id: 10s
-          offset: -10
+        - id: now
+          offset: -1
       duration: 600
   
     - id: sab

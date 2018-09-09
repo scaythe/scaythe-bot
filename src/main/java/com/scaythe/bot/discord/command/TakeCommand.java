@@ -22,8 +22,8 @@ import com.scaythe.bot.discord.guild.GuildObjects;
 import com.scaythe.bot.encounter.Encounter;
 import com.scaythe.bot.encounter.EncounterRepository;
 import com.scaythe.bot.encounter.Mechanic;
+import com.scaythe.bot.i18n.EncounterCodeBuilder;
 import com.scaythe.bot.i18n.MessageResolver;
-import com.scaythe.bot.i18n.SpeechCodeBuilder;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -42,12 +42,12 @@ public class TakeCommand extends ScaytheCommand {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final EncounterRepository encounterRepository;
-    private final SpeechCodeBuilder codeBuilder;
+    private final EncounterCodeBuilder codeBuilder;
     private final EventWaiter eventWaiter;
 
     public TakeCommand(
             EncounterRepository encounterRepository,
-            SpeechCodeBuilder codeBuilder,
+            EncounterCodeBuilder codeBuilder,
             EventWaiter eventWaiter) {
         super(I18N_PREFIX);
 
@@ -64,7 +64,7 @@ public class TakeCommand extends ScaytheCommand {
         GuildObjects guildObjects = event.getClient().getSettingsFor(event.getGuild());
 
         String action = event.getArgs().trim();
-        
+
         if (!action.equals(UNSET_ACTION)) {
             action = SET_ACTION;
         }
@@ -85,11 +85,7 @@ public class TakeCommand extends ScaytheCommand {
 
     private Menu encounterMenu(MenuObjects objects) {
         return ordered(objects.member())
-                .setDescription(
-                        message(
-                                "choose.encounter",
-                                objects.guildObjects().settings().locale(),
-                                objects.guildObjects().messageSource()))
+                .setDescription(message("choose.encounter", objects.guildObjects()))
                 .setChoices(encountersNames(objects.guildObjects()))
                 .setSelection(encounterSelection(objects))
                 .build();
@@ -114,8 +110,7 @@ public class TakeCommand extends ScaytheCommand {
                                         "choose.mechanic",
                                         Arrays.asList(
                                                 encounterName(encounter, objects.guildObjects())),
-                                        objects.guildObjects().settings().locale(),
-                                        objects.guildObjects().messageSource()))
+                                        objects.guildObjects()))
                         .setChoices(mechanicsNames)
                         .setSelection(mechanicSelection(encounter, objects))
                         .build());
@@ -142,8 +137,7 @@ public class TakeCommand extends ScaytheCommand {
                                 Arrays.asList(
                                         mechanicName(mechanic, encounter, objects.guildObjects()),
                                         encounterName(encounter, objects.guildObjects())),
-                                objects.guildObjects().settings().locale(),
-                                objects.guildObjects().messageSource()))
+                                objects.guildObjects()))
                         .setChoices(rolesIds(mechanic))
                         .setSelection(roleSelection(mechanic, encounter, objects))
                         .build());
@@ -158,25 +152,24 @@ public class TakeCommand extends ScaytheCommand {
 
     private void setRole(int role, Mechanic mechanic, Encounter encounter, MenuObjects objects) {
         Locale locale = objects.guildObjects().settings().locale();
-        
+
         if (!objects.action().isPresent()) {
-            String message = message(
-                    "no-action",
-                    locale,
-                    objects.guildObjects().messageSource());
+            String message = message("no-action", objects.guildObjects());
 
             objects.event().reply(message);
-            
+
             return;
         }
-        
+
         String action = objects.action().get();
 
         if (action.equals(SET_ACTION)) {
-            objects.guildObjects().messageSource().set(
-                    codeBuilder.role(encounter, mechanic, role),
-                    objects.member().getEffectiveName());
-    
+            objects.guildObjects()
+                    .messageSource()
+                    .set(
+                            codeBuilder.role(encounter, mechanic, role),
+                            objects.member().getEffectiveName());
+
             String message = message(
                     "taken",
                     Arrays.asList(
@@ -184,44 +177,40 @@ public class TakeCommand extends ScaytheCommand {
                             role(role),
                             mechanicName(mechanic, encounter, objects.guildObjects()),
                             encounterName(encounter, objects.guildObjects())),
-                    locale,
-                    objects.guildObjects().messageSource());
-    
+                    objects.guildObjects());
+
             objects.event().reply(message);
-    
+
             VoiceChannel vc = objects.event().getMember().getVoiceState().getChannel();
             if (vc == null) {
                 return;
             }
-    
+
             AudioManager am = vc.getGuild().getAudioManager();
             am.openAudioConnection(vc);
-    
+
             objects.guildObjects()
                     .player()
                     .play(message, locale, objects.guildObjects().settings().voice(locale));
         } else if (action.equals(UNSET_ACTION)) {
-            objects.guildObjects().messageSource().unset(
-                    codeBuilder.role(encounter, mechanic, role));
-    
+            objects.guildObjects()
+                    .messageSource()
+                    .unset(codeBuilder.role(encounter, mechanic, role));
+
             String message = message(
                     "unset",
                     Arrays.asList(
                             role(role),
                             mechanicName(mechanic, encounter, objects.guildObjects()),
                             encounterName(encounter, objects.guildObjects())),
-                    locale,
-                    objects.guildObjects().messageSource());
-    
-            objects.event().reply(message);
-        } else {
-            String message = message(
-                    "unknown-action",
-                    locale,
-                    objects.guildObjects().messageSource());
+                    objects.guildObjects());
 
             objects.event().reply(message);
-            
+        } else {
+            String message = message("unknown-action", objects.guildObjects());
+
+            objects.event().reply(message);
+
             return;
         }
     }
@@ -266,12 +255,15 @@ public class TakeCommand extends ScaytheCommand {
     }
 
     private Stream<Mechanic> mechanics(Encounter encounter) {
-        return encounter.mechanics().stream().filter(m -> m.roles() != 0).sorted(
-                Comparator.comparing(Mechanic::id));
+        return encounter.mechanics()
+                .stream()
+                .filter(m -> m.roles() != 0)
+                .sorted(Comparator.comparing(Mechanic::id));
     }
 
     private String[] rolesIds(Mechanic mechanic) {
-        return IntStream.rangeClosed(1, mechanic.roles()).mapToObj(Integer::toString).toArray(
-                String[]::new);
+        return IntStream.rangeClosed(1, mechanic.roles())
+                .mapToObj(Integer::toString)
+                .toArray(String[]::new);
     }
 }

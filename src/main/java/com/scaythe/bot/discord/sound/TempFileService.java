@@ -1,4 +1,4 @@
-package com.scaythe.bot.file;
+package com.scaythe.bot.discord.sound;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,7 +35,7 @@ public class TempFileService {
 
     public void deleteFile(Path path) throws IOException {
         log.debug("deleting {}", path);
-//        Files.delete(path);
+        Files.delete(path);
 
         registry.remove(path);
     }

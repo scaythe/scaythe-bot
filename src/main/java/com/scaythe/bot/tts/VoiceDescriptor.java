@@ -6,6 +6,7 @@ import org.immutables.value.Value.Immutable;
 public interface VoiceDescriptor {
 
     public String name();
+
     public String description();
 
     static VoiceDescriptor of(String name, String description) {

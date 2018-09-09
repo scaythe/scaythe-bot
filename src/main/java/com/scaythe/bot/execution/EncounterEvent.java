@@ -8,8 +8,12 @@ import com.scaythe.bot.encounter.Warning;
 
 @Immutable
 public interface EncounterEvent {
+
     public Encounter encounter();
+
     public Mechanic mechanic();
+
     public Warning warning();
+
     public int mechanicCount();
 }

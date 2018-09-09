@@ -59,10 +59,10 @@ public class VoiceCommand extends ScaytheCommand {
                     .sorted(Comparator.comparing(VoiceDescriptor::name))
                     .collect(Collectors.toList());
 
-            List<String> choices = Stream.concat(
-                    voices.stream().map(v -> v.name() + "\n        " + v.description()),
-                    Stream.of(message("default-choice", locale, guildObjects.messageSource())))
-
+            List<String> choices = Stream
+                    .concat(
+                            voices.stream().map(v -> v.name() + "\n        " + v.description()),
+                            Stream.of(message("default-choice", guildObjects)))
                     .collect(Collectors.toList());
 
             selector(event.getMember(), eventWaiter)
@@ -102,17 +102,12 @@ public class VoiceCommand extends ScaytheCommand {
                     message(
                             "chosen",
                             Arrays.asList(voice, locale.getDisplayName(locale)),
-                            locale,
-                            guildObjects.messageSource()));
+                            guildObjects));
         } else {
             guildObjects.settings().voiceUnset(locale);
 
             event.reply(
-                    message(
-                            "default",
-                            Arrays.asList(locale.getDisplayName(locale)),
-                            locale,
-                            guildObjects.messageSource()));
+                    message("default", Arrays.asList(locale.getDisplayName(locale)), guildObjects));
         }
 
         delete(message);

@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import com.scaythe.bot.discord.sound.AudioPlayerSendHandler;
 import com.scaythe.bot.discord.sound.QueuedFilePlayer;
+import com.scaythe.bot.discord.sound.TempFileService;
 import com.scaythe.bot.discord.sound.TtsPlayer;
-import com.scaythe.bot.file.TempFileService;
 import com.scaythe.bot.tts.TtsService;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;

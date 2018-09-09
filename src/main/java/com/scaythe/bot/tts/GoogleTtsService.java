@@ -1,5 +1,6 @@
 package com.scaythe.bot.tts;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -56,7 +57,7 @@ public class GoogleTtsService implements TtsService {
             SynthesizeSpeechResponse response = tts.synthesizeSpeech(input, voice, AUDIO_CONFIG);
 
             return response.getAudioContent().toByteArray();
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new TtsException(e);
         }
     }
@@ -79,7 +80,7 @@ public class GoogleTtsService implements TtsService {
             return voices.stream()
                     .map(v -> VoiceDescriptor.of(v.getName(), v.getSsmlGender().name()))
                     .collect(Collectors.toList());
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new TtsException(e);
         }
     }

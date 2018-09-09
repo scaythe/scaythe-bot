@@ -6,13 +6,21 @@ import java.util.Locale;
 
 import org.springframework.context.MessageSource;
 
-public abstract class MessageResolver {
+@FunctionalInterface
+public interface MessageResolver {
 
-    public static String message(String code, List<String> args, Locale locale, MessageSource source) {
-        return source.getMessage(
-                code,
-                args.stream().toArray(String[]::new),
-                locale);
+    public String resolve(String code, List<String> args);
+
+    public default String resolve(String code) {
+        return resolve(code, Collections.emptyList());
+    }
+
+    public static String message(
+            String code,
+            List<String> args,
+            Locale locale,
+            MessageSource source) {
+        return source.getMessage(code, args.stream().toArray(String[]::new), locale);
     }
 
     public static String message(String code, Locale locale, MessageSource source) {

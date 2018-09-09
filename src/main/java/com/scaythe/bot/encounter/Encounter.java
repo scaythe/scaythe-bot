@@ -6,9 +6,10 @@ import org.immutables.value.Value.Immutable;
 
 @Immutable
 public interface Encounter {
+
     public String id();
-    
+
     public Set<Mechanic> mechanics();
-    
+
     public int duration();
 }

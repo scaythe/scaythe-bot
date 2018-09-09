@@ -21,7 +21,7 @@ import com.scaythe.bot.encounter.EncounterRepository;
 import com.scaythe.bot.encounter.Mechanic;
 import com.scaythe.bot.encounter.Warning;
 import com.scaythe.bot.i18n.ConfigurableMessageSource;
-import com.scaythe.bot.i18n.SpeechCodeBuilder;
+import com.scaythe.bot.i18n.EncounterCodeBuilder;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed.Field;
@@ -36,12 +36,12 @@ public class GetI18nCommand extends ScaytheCommand {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final EncounterRepository encounterRepository;
-    private final SpeechCodeBuilder codeBuilder;
+    private final EncounterCodeBuilder codeBuilder;
     private final MessageSource source;
 
     public GetI18nCommand(
             EncounterRepository encounterRepository,
-            SpeechCodeBuilder codeBuilder,
+            EncounterCodeBuilder codeBuilder,
             MessageSource source) {
         super(I18N_PREFIX);
 
@@ -58,26 +58,20 @@ public class GetI18nCommand extends ScaytheCommand {
         GuildObjects guildObjects = event.getClient().getSettingsFor(event.getGuild());
 
         String code = event.getArgs().trim();
-        
+
         List<Field> fields = new ArrayList<>();
 
         if (code.isEmpty()) {
-            codes().stream()
-                    .map(
-                            c -> configLine(
-                                    c,
-                                    guildObjects.messageSource(),
-                                    guildObjects.settings().locale()))
-                    .forEach(fields::add);
+            codes().stream().map(c -> configLine(c, guildObjects)).forEach(fields::add);
         } else {
-            fields.add(configLine(code, guildObjects.messageSource(), guildObjects.settings().locale()));
+            fields.add(configLine(code, guildObjects));
         }
-        
+
         for (Collection<Field> fieldsPart : split(fields, 20)) {
             EmbedBuilder builder = new EmbedBuilder();
-            
+
             fieldsPart.forEach(builder::addField);
-            
+
             event.reply(builder.build());
         }
     }
@@ -100,23 +94,28 @@ public class GetI18nCommand extends ScaytheCommand {
         return codes;
     }
 
-    private Field configLine(String code, ConfigurableMessageSource guildSource, Locale locale) {
+    private Field configLine(String code, GuildObjects guildObjects) {
+        Locale locale = guildObjects.settings().locale();
+        ConfigurableMessageSource guildSource = guildObjects.messageSource();
+
         String defaultValue;
         try {
             defaultValue = source.getMessage(code, null, locale);
         } catch (NoSuchMessageException e) {
-            return new Field(code, message("unknown-code", locale, guildSource), false);
+            return new Field(code, message("unknown-code", guildObjects), false);
         }
 
         if (guildSource.isSet(code, locale)) {
             String value = message(
                     "line-set",
                     Arrays.asList(guildSource.getMessage(code, null, locale), defaultValue),
-                    locale,
-                    guildSource);
+                    guildObjects);
             return new Field(code, value, false);
         }
-        
-        return new Field(code, message("line-default", Arrays.asList(defaultValue), locale, guildSource), false);
+
+        return new Field(
+                code,
+                message("line-default", Arrays.asList(defaultValue), guildObjects),
+                false);
     }
 }

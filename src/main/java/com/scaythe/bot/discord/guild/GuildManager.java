@@ -11,12 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.jagrosh.jdautilities.command.GuildSettingsManager;
-import com.scaythe.bot.config.DefaultsConfig;
 import com.scaythe.bot.db.GuildPersistence;
 import com.scaythe.bot.db.PropertyPersistence;
-import com.scaythe.bot.execution.EncounterPlayer;
+import com.scaythe.bot.discord.DefaultsConfig;
 
 import net.dv8tion.jda.core.entities.Guild;
+import reactor.core.Disposable;
 
 @Service
 public class GuildManager implements GuildSettingsManager<GuildObjects> {
@@ -76,6 +76,6 @@ public class GuildManager implements GuildSettingsManager<GuildObjects> {
                 .stream()
                 .map(GuildObjects::currentPlayer)
                 .filter(Objects::nonNull)
-                .forEach(EncounterPlayer::stop);
+                .forEach(Disposable::dispose);
     }
 }

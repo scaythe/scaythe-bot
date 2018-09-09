@@ -14,7 +14,7 @@ import com.jagrosh.jdautilities.doc.standard.CommandInfo;
 import com.jagrosh.jdautilities.examples.doc.Author;
 import com.jagrosh.jdautilities.menu.Menu;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
-import com.scaythe.bot.config.LanguageConfig;
+import com.scaythe.bot.discord.LanguageConfig;
 import com.scaythe.bot.discord.guild.GuildObjects;
 
 import net.dv8tion.jda.core.entities.Member;
@@ -55,9 +55,8 @@ public class LanguageCommand extends ScaytheCommand {
 
     private Menu languageMenu(Member member, GuildObjects guildObjects, CommandEvent event) {
         Locale locale = guildObjects.settings().locale();
-        
-        return ordered(member).setDescription(
-                message("choose", locale, guildObjects.messageSource()))
+
+        return ordered(member).setDescription(message("choose", guildObjects))
                 .setChoices(
                         config.getLocales()
                                 .stream()
@@ -82,7 +81,6 @@ public class LanguageCommand extends ScaytheCommand {
                         "set",
                         Collections.singletonList(
                                 locale.getDisplayName(guildObjects.settings().locale())),
-                        guildObjects.settings().locale(),
-                        guildObjects.messageSource()));
+                        guildObjects));
     }
 }

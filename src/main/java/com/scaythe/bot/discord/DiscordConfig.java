@@ -1,7 +1,9 @@
-package com.scaythe.bot.config;
+package com.scaythe.bot.discord;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
+import com.scaythe.bot.config.ConfigPrefixes;
 
 @Component
 @ConfigurationProperties(ConfigPrefixes.DISCORD)

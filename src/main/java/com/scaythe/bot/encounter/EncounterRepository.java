@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.scaythe.bot.config.EncountersConfig;
-
 @Service
 public class EncounterRepository {
 

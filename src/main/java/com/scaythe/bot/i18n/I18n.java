@@ -1,10 +1,12 @@
 package com.scaythe.bot.i18n;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 
 @Configuration
+@ComponentScan
 public class I18n {
     
     @Bean

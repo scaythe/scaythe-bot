@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.scaythe.bot.file.TempFileService;
 import com.scaythe.bot.tts.TtsException;
 import com.scaythe.bot.tts.TtsService;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;

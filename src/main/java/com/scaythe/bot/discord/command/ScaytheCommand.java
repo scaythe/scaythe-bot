@@ -3,17 +3,16 @@ package com.scaythe.bot.discord.command;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
+import com.scaythe.bot.discord.guild.GuildObjects;
 import com.scaythe.bot.encounter.Encounter;
 import com.scaythe.bot.encounter.Mechanic;
 import com.scaythe.bot.i18n.MessageResolver;
@@ -35,12 +34,17 @@ public abstract class ScaytheCommand extends Command {
         return log;
     }
 
-    public String message(String code, List<String> args, Locale locale, MessageSource source) {
-        return MessageResolver.message(i18nPrefix + code, args, locale, source);
+    public String message(String code, List<String> args, GuildObjects guildObjects) {
+        return messageResolver(guildObjects).resolve(i18nPrefix + code, args);
     }
 
-    public String message(String code, Locale locale, MessageSource source) {
-        return MessageResolver.message(i18nPrefix + code, locale, source);
+    public String message(String code, GuildObjects guildObjects) {
+        return messageResolver(guildObjects).resolve(i18nPrefix + code);
+    }
+
+    public static MessageResolver messageResolver(GuildObjects guildObjects) {
+        return (c, a) -> MessageResolver
+                .message(c, a, guildObjects.settings().locale(), guildObjects.messageSource());
     }
 
     public static <T> Collection<Collection<T>> split(Collection<T> collection, int max) {

@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.scaythe.bot.encounter.Encounter;
@@ -14,9 +12,7 @@ import com.scaythe.bot.encounter.Mechanic;
 import com.scaythe.bot.encounter.Warning;
 
 @Component
-public class SpeechCodeBuilder {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public class EncounterCodeBuilder {
 
     public String warning(Encounter encounter, Mechanic mechanic, Warning warning) {
         Collection<String> codeParts = codePrefix(encounter, mechanic);

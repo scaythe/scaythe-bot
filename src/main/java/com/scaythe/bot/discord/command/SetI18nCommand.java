@@ -38,8 +38,7 @@ public class SetI18nCommand extends ScaytheCommand {
         String args = event.getArgs().trim();
 
         if (args.isEmpty()) {
-            event.reply(
-                    message("empty", guildObjects.settings().locale(), guildObjects.messageSource()));
+            event.reply(message("empty", guildObjects));
             return;
         }
 
@@ -53,11 +52,7 @@ public class SetI18nCommand extends ScaytheCommand {
                     = guildObjects.messageSource().unset(code, guildObjects.settings().locale());
 
             if (!old.isPresent()) {
-                event.reply(
-                        message(
-                                "not-set",
-                                guildObjects.settings().locale(),
-                                guildObjects.messageSource()));
+                event.reply(message("not-set", guildObjects));
 
                 return;
             }
@@ -66,35 +61,20 @@ public class SetI18nCommand extends ScaytheCommand {
                     .getMessage(code, null, guildObjects.settings().locale());
             builder.addField(
                     code,
-                    message(
-                            "unset",
-                            Arrays.asList(value, old.get()),
-                            guildObjects.settings().locale(),
-                            guildObjects.messageSource()),
+                    message("unset", Arrays.asList(value, old.get()), guildObjects),
                     false);
         } else {
             String value = argsList.get(1);
 
-            Optional<String> old
-                    = guildObjects.messageSource().set(code, guildObjects.settings().locale(), value);
+            Optional<String> old = guildObjects.messageSource()
+                    .set(code, guildObjects.settings().locale(), value);
 
             if (!old.isPresent()) {
-                builder.addField(
-                        code,
-                        message(
-                                "set",
-                                Arrays.asList(value),
-                                guildObjects.settings().locale(),
-                                guildObjects.messageSource()),
-                        false);
+                builder.addField(code, message("set", Arrays.asList(value), guildObjects), false);
             } else {
                 builder.addField(
                         code,
-                        message(
-                                "replace",
-                                Arrays.asList(value, old.get()),
-                                guildObjects.settings().locale(),
-                                guildObjects.messageSource()),
+                        message("replace", Arrays.asList(value, old.get()), guildObjects),
                         false);
             }
         }
