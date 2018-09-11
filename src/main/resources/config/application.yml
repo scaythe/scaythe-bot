@@ -17,7 +17,7 @@ scaythe:
   defaults:
     language: en
     voices:
-      fr: fr-FR-Standard-C
+      fr: fr-FR-Wavenet-C
   encounters:
     list:
     - id: dhuum
