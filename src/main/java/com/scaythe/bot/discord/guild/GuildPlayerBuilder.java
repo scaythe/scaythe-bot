@@ -1,11 +1,8 @@
 package com.scaythe.bot.discord.guild;
 
+import com.scaythe.bot.discord.sound.*;
 import org.springframework.stereotype.Component;
 
-import com.scaythe.bot.discord.sound.AudioPlayerSendHandler;
-import com.scaythe.bot.discord.sound.QueuedFilePlayer;
-import com.scaythe.bot.discord.sound.TempFileService;
-import com.scaythe.bot.discord.sound.TtsPlayer;
 import com.scaythe.bot.tts.TtsService;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -15,16 +12,15 @@ import net.dv8tion.jda.core.entities.Guild;
 
 @Component
 public class GuildPlayerBuilder {
+    private final ByteArrayAudioSourceManager audioSourceManager;
     private final AudioPlayerManager playerManager;
-    private final TempFileService fileService;
     private final TtsService ttsService;
-    
-    public GuildPlayerBuilder(
+
+    public GuildPlayerBuilder(ByteArrayAudioSourceManager audioSourceManager,
             AudioPlayerManager playerManager,
-            TempFileService fileService,
             TtsService ttsService) {
+        this.audioSourceManager = audioSourceManager;
         this.playerManager = playerManager;
-        this.fileService = fileService;
         this.ttsService = ttsService;
     }
 
@@ -35,8 +31,8 @@ public class GuildPlayerBuilder {
 
         guild.getAudioManager().setSendingHandler(ash);
 
-        QueuedFilePlayer filePlayer = new QueuedFilePlayer(audioPlayer, fileService);
+        QueuedFilePlayer filePlayer = new QueuedFilePlayer(audioPlayer);
 
-        return new TtsPlayer(playerManager, ttsService, filePlayer, fileService);
+        return new TtsPlayer(audioSourceManager, playerManager, ttsService, filePlayer);
     }
 }

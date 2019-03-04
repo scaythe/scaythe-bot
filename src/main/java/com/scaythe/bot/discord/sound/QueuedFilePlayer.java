@@ -1,14 +1,5 @@
 package com.scaythe.bot.discord.sound;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.Queue;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -16,18 +7,21 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class QueuedFilePlayer extends AudioEventAdapter implements AudioLoadResultHandler {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final TempFileService fileService;
     private final AudioPlayer player;
     private final Queue<AudioTrack> queue = new LinkedList<>();
 
-    public QueuedFilePlayer(AudioPlayer player, TempFileService fileService) {
+    public QueuedFilePlayer(AudioPlayer player) {
         this.player = player;
-        this.fileService = fileService;
 
         player.addListener(this);
     }
@@ -73,7 +67,7 @@ public class QueuedFilePlayer extends AudioEventAdapter implements AudioLoadResu
             playNext();
         }
 
-        deleteTrackFile(track);
+//        deleteTrackFile(track);
     }
 
     @Override
@@ -105,12 +99,12 @@ public class QueuedFilePlayer extends AudioEventAdapter implements AudioLoadResu
         }
     }
 
-    private void deleteTrackFile(AudioTrack track) {
-        Path path = Paths.get(track.getIdentifier());
-        try {
-            fileService.deleteFile(path);
-        } catch (IOException e) {
-            log.warn("problem deleting file : {}", path);
-        }
-    }
+//    private void deleteTrackFile(AudioTrack track) {
+//        Path path = Paths.get(track.getIdentifier());
+//        try {
+//            fileService.deleteFile(path);
+//        } catch (IOException e) {
+//            log.warn("problem deleting file : {}", path);
+//        }
+//    }
 }
